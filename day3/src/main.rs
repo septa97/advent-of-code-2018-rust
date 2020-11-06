@@ -65,7 +65,9 @@ fn main() {
     // let more_than_two = matrix.iter().flatten().filter(|&&e| e >= 2).count();
 
     println!("part 1: {}", more_than_two);
-    get_no_overlap_id_opt(&claims, &matrix).map(|id| println!("part 2: {}", id));
+    if let Some(id) = get_no_overlap_id_opt(&claims, &matrix) {
+        println!("part 2: {}", id);
+    }
 }
 
 fn get_no_overlap_id_opt(claims: &Vec<Claim>, matrix: &[[u32; 1000]; 1000]) -> Option<u32> {
