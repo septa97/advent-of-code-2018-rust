@@ -42,7 +42,9 @@ fn main() {
         let j = i + 1;
 
         let guard_id = get_guard_id(&details, shift_start_indices[i]);
-        let detail_slice = details[shift_start_indices[i]..shift_start_indices[j]].to_vec();
+        let slice_start = shift_start_indices[i];
+        let slice_end = shift_start_indices[j];
+        let detail_slice = details[slice_start..slice_end].to_vec();
         let new_sleep_count = get_sleep_count(detail_slice);
 
         match sleep_count_map.get(guard_id) {
@@ -63,10 +65,9 @@ fn main() {
     let part1_guard_id_max_opt = sleep_count_map
         .iter()
         .max_by(|&(_, a_value), &(_, b_value)| {
-            a_value
-                .iter()
-                .sum::<u32>()
-                .cmp(&b_value.iter().sum::<u32>())
+            let x = a_value.iter().sum::<u32>();
+            let y = b_value.iter().sum::<u32>();
+            x.cmp(&y)
         })
         .map(|(&k, _)| k);
 
@@ -76,6 +77,7 @@ fn main() {
                 let guard_id_max: usize = guard_id_max
                     .parse()
                     .expect("Failed to parse string to usize");
+
                 if let Some(max_idx) = get_max_idx(sleep_vec) {
                     println!("part 1: {}", guard_id_max * max_idx);
                 }
@@ -87,11 +89,10 @@ fn main() {
     let part2_guard_id_max_opt = sleep_count_map
         .iter()
         .max_by(|&(_, a_value), &(_, b_value)| {
-            a_value
-                .iter()
-                .max()
-                .unwrap()
-                .cmp(&b_value.iter().max().unwrap())
+            let x = a_value.iter().max().unwrap();
+            let y = b_value.iter().max().unwrap();
+
+            x.cmp(y)
         })
         .map(|(&k, _)| k);
 
@@ -101,14 +102,9 @@ fn main() {
                 let guard_id_max: usize = guard_id_max
                     .parse()
                     .expect("Failed to parse string to usize");
-                let max_minute_opt = sleep_vec
-                    .iter()
-                    .enumerate()
-                    .max_by(|&(_, a_value), &(_, b_value)| a_value.cmp(b_value))
-                    .map(|(idx, _)| idx);
 
-                if let Some(max_minute) = max_minute_opt {
-                    println!("part 2: {}", guard_id_max * max_minute);
+                if let Some(max_idx) = get_max_idx(sleep_vec) {
+                    println!("part 2: {}", guard_id_max * max_idx);
                 }
             }
             None => (),
@@ -154,22 +150,9 @@ fn get_guard_id(details: &Vec<Detail>, idx: usize) -> &str {
 }
 
 fn get_max_idx(sleep_vec: &Vec<u32>) -> Option<usize> {
-    let mut max_idx_opt: Option<usize> = None;
-
-    for (idx, value) in sleep_vec.iter().enumerate() {
-        let new_max_idx = match max_idx_opt {
-            Some(max_idx) => {
-                if value > &sleep_vec[max_idx] {
-                    idx
-                } else {
-                    max_idx
-                }
-            }
-            None => idx,
-        };
-
-        max_idx_opt = Some(new_max_idx);
-    }
-
-    max_idx_opt
+    sleep_vec
+        .iter()
+        .enumerate()
+        .max_by(|&(_, a_value), &(_, b_value)| a_value.cmp(b_value))
+        .map(|(idx, _)| idx)
 }
